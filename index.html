@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CodePen - Daily UI #013: Direct Messaging</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+  <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Open+Sans'>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.3/jquery.mCustomScrollbar.min.css'><link rel="stylesheet" href="./style.css">
+  
+</head>
+<body>
+    
+</body>
+</html>
+
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/6.6.1/firebase-app.js"></script>
+
+<!-- include firebase database -->
+<script src="https://www.gstatic.com/firebasejs/6.6.1/firebase-database.js"></script>
+ 
+<script>
+	// Your web app's Firebase configuration
+	var firebaseConfig = {
+		apiKey: "AIzaSyB-EiLfcc4gqsmXJI8J2NqJqvNao41FWbE",
+    authDomain: "chat-b6b4f.firebaseapp.com",
+    databaseURL: "https://chat-b6b4f-default-rtdb.firebaseio.com",
+    projectId: "chat-b6b4f",
+    storageBucket: "chat-b6b4f.appspot.com",
+    messagingSenderId: "328331448622",
+    appId: "1:328331448622:web:450e49819679344c44eabf",
+    measurementId: "G-KCPGELPG92"
+	};
+	// Initialize Firebase
+	firebase.initializeApp(firebaseConfig);
+
+	var myName = prompt("Enter your name");
+</script>
+	
+
+<div class="chat">
+    <div class="chat-title">
+      <h1>Felipe Segovia</h1>
+      <h2>Pipe</h2>
+      <figure class="avatar">
+        <img src="./gato.png" />
+      </figure>
+    </div>
+    <div class="messages">
+      <div class="messages-content"></div>
+      <form class="message-box" onsubmit="return sendMessage();">
+        <input type="text" id="message" class="message-input" placeholder="Enter message" autocomplete="off">
+        <input type="submit" class="message-submit">
+      </form>
+    </div>
+  </div>
+  
+  <script>
+    function sendMessage() {
+      // get message
+      var message = document.getElementById("message").value;
+  
+      // save in database
+      firebase.database().ref("messages").push().set({
+        "sender": myName,
+        "message": message
+      });
+  
+      // clear input field
+      document.getElementById("message").value = '';
+  
+      // prevent form from submitting
+      return false;
+    }
+  
+    function child_added(snapshot) {
+      var message = snapshot.val();
+      var messageDiv = document.createElement("div");
+      messageDiv.classList.add("message");
+      messageDiv.innerHTML = "<p><strong>" + message.sender + "</strong>: " + message.message + "</p>";
+      messageDiv.setAttribute("id", "message-" + snapshot.key);
+      document.querySelector(".messages-content").appendChild(messageDiv);
+    }
+  
+    firebase.database().ref("messages").on("child_added", child_added);
+  
+  </script>
+  
+
+<!-- create a list -->
+<ul id="messages"></ul>
+	
+<script>
+	// listen for incoming messages
+	firebase.database().ref("messages").on("child_added", function (snapshot) {
+		var html = "";
+		// give each message a unique ID
+		html += "<li id='message-" + snapshot.key + "'>";
+		// show delete button if message is sent by me
+		if (snapshot.val().sender == myName) {
+			html += "<button data-id='" + snapshot.key + "' onclick='deleteMessage(this);'>";
+				html += "Delete";
+			html += "</button>";
+		}
+		html += snapshot.val().sender + ": " + snapshot.val().message;
+		html += "</li>";
+
+		document.getElementById("messages").innerHTML += html;
+        
+	});
+
+    
+</script>
+
+<script>
+    
+</script>
+
